@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Flow ❤️</title>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+  color: red;
+  font-family: Arial, sans-serif;
+  touch-action: manipulation;
+}
+
+.word {
+  position: absolute;
+  white-space: nowrap;
+  user-select: none;
+}
+
+#msg {
+  position: fixed;
+  bottom: 20px;
+  margin-left: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: white;
+  background: rgba(255,0,0,0.8);
+  padding: 12px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .word {
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="msg">Toque na tela 💞🎵</div>
+
+<audio id="music" autoplay loop>
+  <source src="iloove/Angel - Massive Attack (best part looped).mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const words = [];
+
+const isMobile = window.innerWidth < 600;
+const total = isMobile ? 180 : 400;
+const scale = isMobile ? 12 : 18;
+
+function heartPoint(t) {
+  let x = 16 * Math.pow(Math.sin(t), 3);
+  let y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+  return { x: x * scale, y: y * scale };
+}
+
+for (let i = 0; i < total; i++) {
+  let el = document.createElement("div");
+  el.className = "word";
+  el.innerText = "I love you ❤️";
+
+  let size = Math.random() * 10 + (isMobile ? 10 : 12);
+
+  document.body.appendChild(el);
+
+  words.push({
+    el,
+    t: (i / total) * Math.PI * 2,
+    speed: 0.002 + Math.random() * 0.003,
+    size
+  });
+
+  el.style.fontSize = size + "px";
+}
+
+function animate() {
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  words.forEach(p => {
+    p.t += p.speed;
+    if (p.t > Math.PI * 2) p.t -= Math.PI * 2;
+
+    let pos = heartPoint(p.t);
+
+    // distância do centro
+    let dist = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+
+    // 👇 empurra levemente pra fora se estiver muito no meio
+    let push = dist < 60 ? (60 - dist) * 0.3 : 0;
+
+    let x = centerX + pos.x + (pos.x / dist) * push;
+    let y = centerY - pos.y - (pos.y / dist) * push;
+
+    p.el.style.transform = `translate(${x}px, ${y}px)`;
+
+    let opacity = 0.5 + 0.5 * Math.sin(p.t * 2);
+    p.el.style.opacity = opacity;
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+// música
+const music = document.getElementById("music");
+
+window.onload = () => {
+  music.play().catch(() => {});
+};
+
+document.body.addEventListener("touchstart", () => {
+  music.play();
+}, { once: true });
+
+document.body.addEventListener("click", () => {
+  music.play();
+}, { once: true });
+</script>
+
+</body>
+</html>
